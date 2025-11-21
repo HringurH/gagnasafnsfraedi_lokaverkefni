@@ -1,0 +1,71 @@
+LOTR information DB
+
+Data overview:
+characters, locations, races, items, factions, events, eras
+
+Tables:
+
+  characters:
+    id, name, race_id, titles, birth_era_id, birth_year, death_era_id, death_year, is_immortal
+
+  locations:
+    id, name, description, location_type_id, parent_location_id
+
+  location_types: (city/town/wilderness/etc.)
+    id, name, description
+
+  races:
+    id, name, description, parent_race_id
+
+  items:
+    id, name, description, item_type_id, origin_location_id, creation_era_id, creation_year
+
+  item_types:
+    id, name, description
+
+  factions:
+    id, name, faction_type_id, parent_faction_id, description, founded_era_id, founded_year, dissolved_era_id, dissolved_year
+
+  faction_types: (kingdom/small fellowship/secret society/etc.)
+    id, name, description
+
+  events:
+    id, name, description, start_era_id, start_year, end_era_id, end_year, location_id, event_type_id
+
+  event_types:
+    id, name, description
+
+  eras:
+    id, name, abbreviation, description, absolute_start_year
+
+Junction Tables:
+
+  character_factions:
+    character_id, faction_id, join_era_id, join_year, leave_era_id, leave_year, role
+
+  character_location_history:
+    character_id, location_id, start_era_id, start_year, end_era_id, end_year
+
+  item_character_history:
+    item_id, character_id, start_era_id, start_year, end_era_id, end_year
+
+  item_location_history:
+    item_id, location_id, start_era_id, start_year, end_era_id, end_year
+
+  item_creators:
+    item_id, character_id
+
+  faction_location_history:
+    location_id, faction_id, start_era_id, start_year, end_era_id, end_year
+
+  faction_races:
+    faction_id, race_id
+
+  event_characters:
+    event_id, character_id
+
+  event_factions:
+    event_id, faction_id
+
+  event_items:
+    event_id, item_id
