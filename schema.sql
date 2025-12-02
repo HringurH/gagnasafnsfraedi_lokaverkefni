@@ -384,3 +384,15 @@ CREATE TABLE event_items (
         REFERENCES items(id)
         ON DELETE CASCADE
 );
+
+CREATE VIEW character_profiles AS (
+    SELECT c.id AS character_id, c.name AS character_name,
+           r.name AS race_name, c.title, c.description,
+           e_start.absolute_start_year + c.birth_year AS absolute_birth_year,
+           e_end.absolute_start_year + c.death_year AS absolute_death_year, 
+           c.is_immortal
+    FROM characters c
+    JOIN races r ON c.race_id = r.id
+    LEFT JOIN eras e_start ON c.birth_era_id = e_start.id
+    LEFT JOIN eras e_end ON c.death_era_id = e_end.id
+);
