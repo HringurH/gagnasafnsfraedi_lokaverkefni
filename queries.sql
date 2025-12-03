@@ -124,3 +124,31 @@ JOIN item_character_history ich ON i.id = ich.item_id
 GROUP BY i.id
 ORDER BY owner_count DESC
 LIMIT 1;
+
+--- 12. Sýnir nöfn og lýsingu allra persóna sem voru á lífi þegar 'Council of Elrond' átti sér stað
+WITH absolute_council_date AS (
+    SELECT e.absolute_start_year + ev.start_year AS council_year
+    FROM events ev
+    JOIN eras e ON ev.start_era_id = e.id
+    WHERE ev.name = 'Council of Elrond'
+)
+SELECT cp.character_name AS character_name, cp.description AS character_description
+FROM character_profiles cp
+WHERE cp.absolute_birth_year < (SELECT council_year FROM absolute_council_date)
+AND (cp.absolute_death_year IS NULL OR cp.absolute_death_year > (SELECT council_year FROM absolute_council_date));
+
+--- 13. Sýnir nöfn og lýsingu allra hluta sem hafa verið í atburðum sem urðu á 'Third Age'
+SELECT i.name AS item_name, i.description AS item_description, STRING_AGG(e.name, ', ') AS events
+FROM items i
+JOIN event_items ei ON i.id = ei.item_id
+JOIN events e ON ei.event_id = e.id
+JOIN eras er ON e.start_era_id = er.id
+WHERE er.name = 'Third Age'
+GROUP BY i.id;
+
+--- 14. Sýnir nöfn allra persóna sem hafa búið til hluti ásamt lista yfir hluti sem þær hafa búið til
+SELECT c.name AS character_name, STRING_AGG(i.name, ', ') AS items_created
+FROM characters c
+JOIN item_creators ic ON c.id = ic.character_id
+JOIN items i ON ic.item_id = i.id
+GROUP BY c.id;
