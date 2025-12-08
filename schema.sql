@@ -396,3 +396,54 @@ CREATE VIEW character_profiles AS (
     LEFT JOIN eras e_start ON c.birth_era_id = e_start.id
     LEFT JOIN eras e_end ON c.death_era_id = e_end.id
 );
+
+CREATE VIEW item_profiles AS (
+    SELECT i.id AS item_id, i.name AS item_name,
+        it.name AS item_type,
+        l.name AS origin_location,
+        e.absolute_start_year + i.creation_year AS absolute_creation_year,
+        ARRAY(
+            SELECT c.name
+            FROM item_creators ic
+            JOIN characters c ON ic.character_id = c.id
+            WHERE ic.item_id = i.id
+        ) AS creators
+    FROM items i
+    JOIN item_types it ON i.item_type_id = it.id
+    LEFT JOIN locations l ON i.origin_location_id = l.id
+    LEFT JOIN eras e ON i.creation_era_id = e.id
+);
+
+CREATE VIEW event_details AS (
+    SELECT 
+        e.id AS event_id,
+        e.name,
+        et.name AS event_type,
+        l.name AS location_name,
+        e.description,
+        es.absolute_start_year + e.start_year AS absolute_start_year,
+        ee.absolute_start_year + e.end_year AS absolute_end_year,
+        ARRAY(SELECT c.name FROM event_characters ec
+            JOIN characters c ON ec.character_id = c.id
+            WHERE ec.event_id = e.id) AS characters_involved,
+        ARRAY(SELECT f.name FROM event_factions ef
+            JOIN factions f ON ef.faction_id = f.id
+            WHERE ef.event_id = e.id) AS factions_involved,
+        ARRAY(SELECT i.name FROM event_items ei
+            JOIN items i ON ei.item_id = i.id
+            WHERE ei.event_id = e.id) AS items_involved
+    FROM events e
+    JOIN event_types et ON e.event_type_id = et.id
+    LEFT JOIN locations l ON e.location_id = l.id
+    LEFT JOIN eras es ON e.start_era_id = es.id
+    LEFT JOIN eras ee ON e.end_era_id = ee.id
+);
+
+CREATE INDEX idx_character_name ON characters(name);
+CREATE INDEX idx_character_title ON characters(title);
+CREATE INDEX idx_item_name ON items(name);
+CREATE INDEX idx_location_name ON locations(name);
+CREATE INDEX idx_faction_name ON factions(name);
+CREATE INDEX idx_event_name ON events(name);
+CREATE INDEX idx_race_name ON races(name);
+CREATE INDEX idx_era_name ON eras(name);
